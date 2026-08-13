@@ -34,6 +34,33 @@ from **Customize** in the sidebar and choose the project or user scope.
 
 Then **start a new chat.** That is not a formality — see the next section.
 
+### If you also use Jolli in Claude Code, you will see two Jolli marketplaces
+
+Cursor automatically imports the marketplaces you have added in Claude Code, so a
+machine with both will list **two** entries offering a plugin called `jolli`:
+
+| In Customize | Where it came from | Use it? |
+|---|---|---|
+| **Jolli Cursor Marketplace** | this plugin, added by you | **Yes** |
+| **Jolli Marketplace** | your Claude Code setup, imported automatically | No |
+
+Install from the one with **Cursor** in its name. They are different builds of the
+same product, and the Claude Code one cannot work here: its session hook is written
+against Claude Code's event name, file shape and plugin-root variable, none of which
+Cursor recognises. Cursor does not report that as an error — it simply never runs the
+hook, so no git hooks are installed and **nothing captures memory**, while the skills
+and the MCP server still appear perfectly healthy. Its MCP server also starts before
+Cursor knows which folder is open, so it answers about your home directory instead of
+your repository: every recall and search succeeds and comes back empty.
+
+Leaving it in the list is harmless as long as you do not install it. Removing it from
+inside Cursor does not stick — the import runs again on the next window reload. If you
+want it gone, remove it on the Claude Code side, which also removes it from Claude Code:
+
+```bash
+claude plugin marketplace remove jolli-marketplace
+```
+
 ## What the first session does
 
 The bootstrap runs on `sessionStart`, which Cursor fires when a **new conversation
