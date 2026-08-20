@@ -6,12 +6,12 @@ Cursor.
 
 ## What the plugin includes
 
-- **Skills** — eleven in all, and where each one lives follows from when you need it.
+- **Skills** — twelve in all, and where each one lives follows from when you need it.
   - **`/jolli`** — the front door. Available in every chat from the moment you
     install, in any window, whether or not a repository is open.
-  - **Six more in the bundle**, also available immediately: `/jolli-init`,
-    `/jolli-login`, `/jolli-logout`, `/jolli-status`, `/jolli-timeline`,
-    `/jolli-push`.
+  - **Seven more in the bundle**, also available immediately: `/jolli-init`,
+    `/jolli-login`, `/jolli-logout`, `/jolli-status`, `/jolli-dashboard`,
+    `/jolli-timeline`, `/jolli-push`.
   - **Four more once you set a repository up**: `/jolli-recall`, `/jolli-search`,
     `/jolli-local-run`, `/jolli-remote-run`. These are placed per repository rather
     than bundled because Cursor pools every skill source into one flat menu, and
@@ -185,6 +185,7 @@ unless you sign in and bind one.
 - `/jolli-init` — setup and Space binding.
 - `/jolli-login` / `/jolli-logout` — Jolli account credentials.
 - `/jolli-status` — installation and generation health.
+- `/jolli-dashboard` — open the local dashboard in your browser.
 - `/jolli-recall` / `/jolli-search` / `/jolli-timeline` — read memory.
 - `/jolli-push` — publish memories to a Space.
 - `/jolli-local-run` / `/jolli-remote-run` — run Jolli workflows.

@@ -9,8 +9,10 @@
 <body>
 <!--
   Shell markup mirrors the `jolli stats` / `jolli standup` mockups: a sticky
-  sidebar (dashboards + repo filter), a topbar carrying the page identity,
-  repo pill and time-range control, and one `.wrap` per view.
+  sidebar (the nav list plus a pinned Settings slot), a topbar carrying the page
+  identity, the repository picker and the time-range control, and one `.wrap`
+  per view. The sidebar holds no repo filter — scope selection is the topbar
+  picker below, and nothing else sets it apart from a memory deep link.
 
   `data-tier` on `.jd` is load-bearing, not decorative — the stylesheet keys the
   synced chip and the locked-preview treatments off it, so the shell reflects the
@@ -27,6 +29,24 @@
 	<div class="main">
 		<header class="topbar">
 			<div class="wordmark"><b id="pageTitle">My stats</b><span id="pageSub">individual · local</span></div>
+			<!-- Repository scope. A popover of checkboxes rather than a segmented
+			     control, because the selection is a SET (one, several, or every
+			     repo) and the machine can hold more repos than a top row can show.
+			     Its rows are rendered by JS from `model.repos`; the "All
+			     repositories" master row and the action bar are static so the
+			     control's own chrome cannot move as the list changes. -->
+			<div class="repo-scope-wrap" id="repoScopeWrap">
+				<button type="button" class="repo-scope-btn" id="repoScopeBtn" aria-expanded="false" aria-controls="repoScope" aria-haspopup="true">
+					<span id="repoScopeLabel">All repos</span><svg class="repo-scope-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+				</button>
+				<form class="repo-scope" id="repoScope" hidden aria-label="Repositories">
+					<div class="repo-scope-list" id="repoScopeList"></div>
+					<div class="repo-scope-foot">
+						<span id="repoScopeSelection">All repositories</span>
+						<div><button type="button" class="cta ghost sm" id="repoScopeCancel">Cancel</button><button type="submit" class="cta sm" id="repoScopeApply">Apply</button></div>
+					</div>
+				</form>
+			</div>
 			<div class="seg seg-sm" role="group" aria-label="Time range" id="rangeSeg">
 				<button type="button" data-range="week">7d</button>
 				<button type="button" data-range="month">30d</button>
@@ -56,45 +76,61 @@
 	</div>
 
 	<!--
-	  Two page-level layers, both `position: fixed`: a tooltip (positioned by
-	  JD.showTip) and the standup draft sheet. They sit OUTSIDE `.main` so a hover or
-	  a dialog near the edge of a scrolled card is not clipped by that card, but
+	  Page-level layers, all `position: fixed`: the tooltip (positioned by
+	  JD.showTip) and the overlays below. They sit OUTSIDE `.main` so a hover or a
+	  dialog near the edge of a scrolled card is not clipped by that card, but
 	  INSIDE `.jd` — that is the element carrying the colour tokens, and a layer
 	  outside it renders with every `var(--surface)` / `var(--border)` unresolved,
 	  i.e. as unstyled text on a transparent background.
 
-	  The sheet's textarea is EDITABLE on purpose and is this page's actual product:
-	  the mockup's whole claim for the standup view is "everyone edits before it
-	  posts", so the draft has to be visible and correctable, not just written to the
-	  clipboard behind a click.
+	  A third layer used to live here: the standup draft sheet (`#ovStandup`), an
+	  editable textarea holding markdown assembled by `JD.standupMarkdown`. It went
+	  with the Copy-as-standup button that was its only trigger (JOLLI-2198) — the
+	  standup board is read off the page now, not pasted from it.
 	-->
 	<div class="tip" id="tip"></div>
-	<div class="overlay" id="ovStandup" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-		<div class="sheet">
-			<h3 id="sheetTitle">Your standup, drafted</h3>
-			<div class="sub" id="sheetSub"></div>
-			<textarea id="mdOut" spellcheck="false" aria-label="Standup markdown"></textarea>
+	<!--
+	  The Memories page's Context viewer. Same layer rules as the sheet above.
+
+	  Its body is a SANDBOXED iframe onto /context-viewer, not markup this page
+	  builds: the document is markdown an agent wrote, and this page inlines the
+	  mutation token, so rendered HTML must never share an origin with it. The
+	  `sandbox` attribute (no allow-same-origin) is what enforces that — the same
+	  model the Knowledge page's wiki frame uses. It used to be a read-only <pre>
+	  of the raw markdown source for want of a renderer; the frame is the renderer.
+	-->
+	<div class="overlay" id="ovContext" role="dialog" aria-modal="true" aria-labelledby="ctxTitle">
+		<!--
+		  `sheet-fill` because the body below is an iframe, which has no intrinsic
+		  height for a content-sized sheet to grow to. The Conversation sheet
+		  deliberately does NOT carry it: its body is real DOM, so a short
+		  conversation still gets a short dialog.
+		-->
+		<div class="sheet sheet-fill">
+			<button class="sheet-close" type="button" id="ctxDismiss" aria-label="Close">✕</button>
+			<h3 id="ctxTitle">Context</h3>
+			<div class="sub" id="ctxSub"></div>
+			<iframe id="ctxFrame" class="ctx-frame" sandbox="allow-scripts" title="Context document"></iframe>
 			<div class="row">
-				<button class="cta" type="button" id="copyMd">Copy markdown</button>
-				<span class="toast" id="mdToast" role="status">Copied ✓</span>
 				<div class="spacer"></div>
-				<button class="cta ghost" type="button" id="closeOv">Close</button>
+				<button class="cta ghost" type="button" id="ctxClose">Close</button>
 			</div>
 		</div>
 	</div>
 	<!--
-	  The Memories page's Context viewer. Same layer rules as the sheet above.
-	  Its body is a read-only <pre>, filled with textContent — the document is
-	  markdown an agent wrote, and this page has no renderer for it.
+	  The Memories page's Conversation viewer. Plain DOM, no frame: a transcript
+	  entry is rendered as TEXT (the editor's ConversationDetailsPanel does the
+	  same), so there is no agent-authored HTML here to isolate.
 	-->
-	<div class="overlay" id="ovContext" role="dialog" aria-modal="true" aria-labelledby="ctxTitle">
+	<div class="overlay" id="ovConversation" role="dialog" aria-modal="true" aria-labelledby="convTitle">
 		<div class="sheet">
-			<h3 id="ctxTitle">Context</h3>
-			<div class="sub" id="ctxSub"></div>
-			<pre id="ctxBody" class="ctx-body"></pre>
+			<button class="sheet-close" type="button" id="convDismiss" aria-label="Close">✕</button>
+			<h3 id="convTitle">Conversation</h3>
+			<div class="sub" id="convSub"></div>
+			<div id="convBody" class="conv-body"></div>
 			<div class="row">
 				<div class="spacer"></div>
-				<button class="cta ghost" type="button" id="ctxClose">Close</button>
+				<button class="cta ghost" type="button" id="convClose">Close</button>
 			</div>
 		</div>
 	</div>
@@ -115,7 +151,6 @@
 <script src="js/shell.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/standup.js"></script>
-<script src="js/repositories.js"></script>
 <script src="js/memories.js"></script>
 <script src="js/knowledge.js"></script>
 <script src="js/graph.js"></script>

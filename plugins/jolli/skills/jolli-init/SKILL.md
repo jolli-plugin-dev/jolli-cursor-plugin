@@ -7,6 +7,22 @@ description: "Set up Jolli Memory for the current repository in Cursor: verify t
 
 Complete the steps in order. Stop when a required step fails.
 
+### Shell prerequisite
+
+This block requires a POSIX bash shell. On Linux/macOS the system bash works.
+**On Windows, use Git Bash** (the bash bundled with Git for Windows). Other
+Windows "bash" options — `C:\Windows\System32\bash.exe`, the WindowsApps
+alias, or any WSL bash — see a separate Linux home directory and will not
+find the Jolli entry script that lives under `%USERPROFILE%`.
+
+If Git Bash is not available on Windows, STOP and tell the user:
+"Jolli skill needs Git Bash on Windows. Install Git for Windows from
+https://git-scm.com/download/win and retry."
+
+Do NOT fall back to `npm run`, `npx`, `node` directly, PowerShell-native
+commands, WSL bash, or any workspace-local script — those bypass the
+security recipe and the dist resolver and will not produce valid output.
+
 ## 1. Inspect state
 
 Call the Jolli Memory `status` tool. If unavailable, run `"$HOME/.jolli/jollimemory/run-cli" status`.
@@ -21,8 +37,9 @@ Run:
 "$HOME/.jolli/jollimemory/run-cli" enable --repo-hooks-only --source-tag cursor-plugin
 ```
 
-This explicit setup records `cursor-agent` as the local-agent tool while
-preserving an existing paid provider choice. It also writes this workspace's
+This explicit setup records `cursor-agent` as the local-agent tool only when none
+is configured yet — an agent tool and a paid provider already on disk are both left
+exactly as they are. It also writes this workspace's
 `.cursor/mcp.json`, and places `/jolli-recall`, `/jolli-search`,
 `/jolli-local-run` and `/jolli-remote-run` into this repository — those four are
 not bundled with the plugin, so that they appear once in the menu rather than twice
@@ -67,7 +84,9 @@ Call `status` again (or `"$HOME/.jolli/jollimemory/run-cli" status` when the too
 Report:
 
 - memory generation enabled or the exact remaining problem;
-- summaries run through Cursor when provider is `local-agent`;
+- which agent generates summaries when provider is `local-agent` — name
+  `localAgentTool` from `status` rather than assuming Cursor, since a tool that
+  was already configured is left alone;
 - Jolli sign-in and bound Space when sharing was configured;
 - a normal commit captures memory and `git push` publishes to the bound Space;
 - when the MCP tools were unavailable, that enabling `jollimemory` in **Customize**
