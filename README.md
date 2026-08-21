@@ -6,26 +6,27 @@ Cursor.
 
 ## What the plugin includes
 
-- **Skills** — twelve in all, and where each one lives follows from when you need it.
-  - **`/jolli`** — the front door. Available in every chat from the moment you
-    install, in any window, whether or not a repository is open.
-  - **Seven more in the bundle**, also available immediately: `/jolli-init`,
-    `/jolli-login`, `/jolli-logout`, `/jolli-status`, `/jolli-dashboard`,
-    `/jolli-timeline`, `/jolli-push`.
-  - **Four more once you set a repository up**: `/jolli-recall`, `/jolli-search`,
-    `/jolli-local-run`, `/jolli-remote-run`. These are placed per repository rather
-    than bundled because Cursor pools every skill source into one flat menu, and
-    bundling them would show each one twice in a repository that already has Jolli's
-    cross-platform copies.
+- **Skills** — twelve in all, and every one of them is available from the moment you
+  install, in any window, whether or not a repository is open.
+  - **`/jolli`** — the front door.
+  - **Eleven more**: `/jolli-recall`, `/jolli-search`, `/jolli-timeline`,
+    `/jolli-push`, `/jolli-dashboard`, `/jolli-status`, `/jolli-init`,
+    `/jolli-login`, `/jolli-logout`, `/jolli-local-run`, `/jolli-remote-run`.
+  - If you also use Jolli with Claude Code or Codex in the same repository, four of
+    these (`/jolli-recall`, `/jolli-search`, `/jolli-local-run`, `/jolli-remote-run`)
+    will appear **twice** in the slash menu — once from this plugin, once from the
+    cross-platform copy those tools read. The two are the same instructions; Cursor
+    pools every skill source into one flat menu and cannot merge them. Either entry
+    works.
 - **MCP tools** — `recall`, `search`, `get_decision_timeline`, `list_branches`,
   `get_pr_description`, `queue_status`, `status`, plus the Jolli Space tools.
   Registered into a repository when you set it up; enabling the server takes one
   click, see below.
 - **Hooks** — one `sessionStart` bootstrap. **It does not set up your repositories
   for you.** It makes `/jolli` available, and for repositories you have already set
-  up it keeps them current (re-pointing skills after a plugin upgrade) and injects a
-  branch briefing. Setting a repository up — git hooks, MCP, the four skills above —
-  happens when you ask for it, through `/jolli` or `/jolli-init`.
+  up it keeps them current and injects a branch briefing. Setting a repository up —
+  git hooks and MCP — happens when you ask for it, through `/jolli` or `/jolli-init`.
+  The skills themselves need none of this: they ship with the plugin.
 - **A self-contained runtime** — no global `jolli` CLI installation required.
   Jolli's CLI is still reachable at `~/.jolli/jollimemory/run-cli` (a bash script —
   on Windows run it from Git Bash), which takes the same arguments as `jolli` itself,
@@ -103,7 +104,8 @@ does three things and no more:
 - installs the `~/.jolli/jollimemory/run-cli` dispatcher the skills fall back on when
   MCP is not reachable;
 - for a repository you have **already** set up: keeps it current — re-pointing its
-  skills after a plugin upgrade — and injects a short briefing for the current branch.
+  git hooks and MCP entry after a plugin upgrade — and injects a short briefing for
+  the current branch.
 
 ## Setting a repository up
 
@@ -113,15 +115,14 @@ prefer to skip the menu. Either one:
 
 - installs the repository's git hooks (that is what captures memory on commit);
 - writes `.cursor/mcp.json` so the Jolli Memory MCP tools are available;
-- places `/jolli-recall`, `/jolli-search`, `/jolli-local-run` and `/jolli-remote-run`
-  into `.cursor/skills/`, unless the repository already provides them (a repository
-  set up with the Jolli CLI has them in `.agents/skills/`, and they are left alone
-  there);
 - records Cursor as the local summarization agent if no provider is configured yet;
 - signs you in and binds a Jolli Space, if you want to share memories.
 
 Commits you made **before** setting up are not lost — `run-cli backfill --all` writes
 memories for the history that is already there.
+
+Note what is NOT in that list: the skills. They ship with the plugin and work before
+any of this — setup is what makes them have something to recall.
 
 Everything it writes is added to `.git/info/exclude`, so none of it shows up in
 `git status`.

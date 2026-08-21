@@ -1,10 +1,6 @@
 ---
 name: jolli-recall
 description: Recall prior development context from Jolli for the current branch. Use when the user wants to recall, remember, or resume prior work on a branch.
-metadata:
-  version: "dev"
-  revision: 2
-  vendor: "jolli.ai"
 ---
 
 # Jolli Recall

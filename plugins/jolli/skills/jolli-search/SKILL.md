@@ -1,10 +1,6 @@
 ---
 name: jolli-search
 description: Search structured commit memories across all branches — decisions, topics, files. Use when the user wants to find prior decisions, related commits, or how a topic was handled before.
-metadata:
-  version: "dev"
-  revision: 2
-  vendor: "jolli.ai"
 ---
 
 # Jolli Search

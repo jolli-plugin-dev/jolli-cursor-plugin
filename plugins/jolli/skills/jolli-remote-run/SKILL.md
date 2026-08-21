@@ -1,10 +1,6 @@
 ---
 name: jolli-remote-run
 description: Run a Jolli workflow remotely — the Jolli backend executes the workflow server-side; this recipe triggers the run, monitors it to completion, reports the outcome (failed / cancelled / succeeded) with its article, PR, and workflow links, and offers to open any in your browser. Use when the user wants to run a Jolli workflow remotely (on the Jolli backend).
-metadata:
-  version: "dev"
-  revision: 4
-  vendor: "jolli.ai"
 ---
 
 # Jolli Remote Run

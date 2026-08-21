@@ -1,10 +1,6 @@
 ---
 name: jolli-local-run
 description: Run a Jolli workflow locally — your own agent executes the workflow's recipe (no Jolli LLM budget) and its file writes land in a git-backed Jolli Space via a branch and pull request that space-cli opens on this machine. Use when the user wants to run a Jolli workflow locally.
-metadata:
-  version: "dev"
-  revision: 5
-  vendor: "jolli.ai"
 ---
 
 # Jolli Local Run
